@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.12)
-
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 # Change your executable name to something creative!
-set(NAME pico-boilerplate) # <-- Name your project/executable here!
+set(NAME cosmic-unicorn) # <-- Name your project/executable here!
 
 include(pimoroni_pico_import.cmake)
 include(pico_sdk_import.cmake)
@@ -26,11 +26,13 @@ include(common/pimoroni_bus)
 include(libraries/bitmap_fonts/bitmap_fonts)
 include(libraries/hershey_fonts/hershey_fonts)
 include(libraries/pico_explorer/pico_explorer)
-
+include(libraries/cosmic_unicorn/cosmic_unicorn)
 # Don't forget to link the libraries you need!
 target_link_libraries(${NAME}
     pimoroni_i2c
     pico_explorer # <-- List libraries here!
+    cosmic_unicorn
+    pico_graphics
 )
 
 # create map/bin/hex file etc.

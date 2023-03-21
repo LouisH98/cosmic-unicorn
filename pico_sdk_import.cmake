@@ -2,7 +2,7 @@
 
 # This can be dropped into an external project to help locate this SDK
 # It should be include()ed prior to project()
-
+message($ENV{PICO_SDK_PATH})
 if (DEFINED ENV{PICO_SDK_PATH} AND (NOT PICO_SDK_PATH))
     set(PICO_SDK_PATH $ENV{PICO_SDK_PATH})
     message("Using PICO_SDK_PATH from environment ('${PICO_SDK_PATH}')")
@@ -58,6 +58,7 @@ if (NOT PICO_SDK_PATH)
     endif ()
 endif ()
 
+message("Using PICO_SDK_PATH from environment" '${PICO_SDK_PATH}')
 get_filename_component(PICO_SDK_PATH "${PICO_SDK_PATH}" REALPATH BASE_DIR "${CMAKE_BINARY_DIR}")
 if (NOT EXISTS ${PICO_SDK_PATH})
     message(FATAL_ERROR "Directory '${PICO_SDK_PATH}' not found")
