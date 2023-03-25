@@ -1,12 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include <vector>
-#include <array>
 #include "cosmic_unicorn.hpp"
 
 using namespace pimoroni;
-using namespace std;
 
 PicoGraphics_PenRGB888 graphics(32, 32, nullptr);
 CosmicUnicorn cosmic_unicorn;
@@ -14,52 +11,13 @@ CosmicUnicorn cosmic_unicorn;
 const int width = CosmicUnicorn::WIDTH;
 const int height = CosmicUnicorn::HEIGHT;
 
-vector<vector<int>> grid(width, vector<int>(height, 0));
-
-// create history vector to store the last 3 frames
-vector<vector<vector<int>>> history(3, vector<vector<int>>(width, vector<int>(height, 0)));
+// initialize the grid and set all cells to 0
+int grid[width][height] = {};
+int last_grid[width][height] = {};
 
 int sleep_time = 25;
 
 int alive_colour = graphics.create_pen(0, 0, 255);
-
-int shift_colour(int colour, int shift)
-{
-    int r = (colour >> 16) & 0xFF;
-    int g = (colour >> 8) & 0xFF;
-    int b = colour & 0xFF;
-
-    r = (r + shift) % 255;
-    g = (g + shift) % 255;
-    b = (b + shift) % 255;
-
-    return graphics.create_pen(r, g, b);
-}
-
-int dim_colour_by_percent(int colour, int percent)
-{
-    int r = (colour >> 16) & 0xFF;
-    int g = (colour >> 8) & 0xFF;
-    int b = colour & 0xFF;
-
-    r = r * (100 - percent) / 100;
-    g = g * (100 - percent) / 100;
-    b = b * (100 - percent) / 100;
-
-    return graphics.create_pen(r, g, b);
-}
-
-void add_to_history(const vector<vector<int>> &grid)
-{
-    // add the current grid to the history vector
-    history.push_back(grid);
-
-    // remove the oldest grid from the history vector
-    if (history.size() > 3)
-    {
-        history.erase(history.begin());
-    }
-}
 
 // helper function to count the number of alive neighbors for a cell
 int count_alive_neighbors(int x, int y)
@@ -92,14 +50,9 @@ void seed_grid()
     }
 }
 
-bool is_game_stuck()
+bool is_grid_stable()
 {
-    // check if the current grid is the same as any of the grids in the history vector
-    if (grid == history[0])
-    {
-        return true;
-    }
-    return false;
+    return std::equal(std::begin(grid), std::end(grid), std::begin(last_grid));
 }
 
 void handle_input()
@@ -149,11 +102,10 @@ int main()
         graphics.clear();
 
         // create a new grid to hold the next state of the game
-        vector<vector<int>> next_grid(width, vector<int>(height, 0));
+        int next_grid[width][height] = {};
 
-        if (is_game_stuck())
+        if (is_grid_stable())
         {
-            sleep_ms(1000);
             seed_grid();
         }
 
@@ -173,7 +125,7 @@ int main()
                 else if (grid[x][y] == 0 && alive_neighbors == 3)
                 {
                     next_grid[x][y] = 1;
-                    graphics.set_pen(shift_colour(alive_colour, 30));
+                    graphics.set_pen(255, 255, 255);
                     graphics.pixel(Point(x, y));
                 }
             }
@@ -184,13 +136,12 @@ int main()
         {
             for (int x = 0; x < width; x++)
             {
+                last_grid[x][y] = grid[x][y];
                 grid[x][y] = next_grid[x][y];
             }
         }
 
         cosmic_unicorn.update(&graphics);
-
-        add_to_history(grid);
 
         sleep_ms(sleep_time); // adjust the speed of the game by changing the sleep time
     }
